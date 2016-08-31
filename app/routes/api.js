@@ -3,14 +3,16 @@ var router = express.Router();
 var request = require('request');
 var _ = require('underscore');
 var async = require('async');
-
+var url = require('url');
+var og = require('open-graph');
 /* GET facebook page top posts */
 router.get('/search', function(req, res) {
 	var id = req.param('id');
-	var url = 'https://graph.facebook.com/v2.7/'+id+'/posts?limit=3&access_token=224598357874885|f40ac5f404146d8286bd081fd3eb6eec';
+	var endpoint = 'https://graph.facebook.com/v2.7/'+id+'/posts?fields=id,link,message,name,shares,likes.limit(0).summary(true),comments.limit(0).summary(true)&access_token=224598357874885|f40ac5f404146d8286bd081fd3eb6eec';
 	var posts = {};
 
-	request(url, function (error, response, html) {
+
+	request(endpoint, function (error, response, html) {
 
 		if(!error) {
 			var body = JSON.parse(response.body);
@@ -19,24 +21,42 @@ router.get('/search', function(req, res) {
 				res.json({message: 'Error'})
 			} else {
 				var data = body.data;
-        var posts = {};
+        var posts = [];
 
-				var urls = [];
-        for (var i=0; i < data.length; i++) {
-          var object_id = data[i].id
-          urls.push('https://graph.facebook.com/v2.7/'+object_id+'/likes?summary=true&access_token=224598357874885|f40ac5f404146d8286bd081fd3eb6eec');
-        }
+        async.map(data, function(item, callback) {
+          var shares = 'shares' in item ? item.shares.count : 0;
+          var likes = 'likes' in item ? item.likes.summary.total_count : 0;
+          var comments = 'comments' in item ? item.comments.summary.total_count : 0;
+          var link = 'link' in item ? item.link : '';
+          var message = 'message' in item ? item.message : '';
+          var name = 'name' in item ? item.name : '';
 
-        async.mapSeries(urls, function(url, callback) {
-          request(url, function (error, response, html) {
-            if (error) return callback(error);
-            callback(null, url);
+          var object = {
+            id: item.id,
+            likes: likes,
+            shares: shares,
+            comments: comments,
+            link: link,
+            message: message,
+            name: name,
+            image_url: ''
+          }
+
+
+          og(link, function(er, res){
+            if(res) {
+              if('image' in res) {
+                object.image_url = res.image.url;
+              }
+            }
+            posts.push(object);
+            callback(null, res);
           });
-        }, function(err, results) {
-            res.json({data: posts});
+
+
+        }, function (err, results) {
+          res.json({data: posts});
         });
-
-
 			}
 
 

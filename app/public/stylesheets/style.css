@@ -1,8 +1,73 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  font-size: 100%;
+  vertical-align: baseline;
+  background: transparent;
+}
 body {
-  padding: 50px;
+  padding: 0;
+  margin: 0;
+  background: #eee;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
 a {
   color: #00B7FF;
+  text-decoration: none;
+}
+
+.btn {
+  display: inline-block;
+  background-color: #e67e22;
+  color: #fff;
+  padding: 0 12px;
+  border-radius: 3px;
+  margin-left: 5px;
+  line-height: 37px;
+}
+
+input {
+  display: inline-block;
+  font-size: 14px;
+  padding: 0 12px;
+  line-height: 35px;
+  min-width: 200px;
+  border-radius: 3px;
+  outline: 0;
+  border: 1px solid transparent;
+}
+
+#posts {
+  display: block;
+  float: left;
+  width: 100%;
+}
+
+.search-bar {
+  text-align: center;
+  background-color: #26a65b;
+  padding: 20px;
+}
+
+.search-bar h1 {
+  color: #fff;
+}
+
+.post {
+  max-width: 500px;
+  margin: 0 auto;
+  background: #fff;
+  margin-top: 15px;
+  margin-bottom: 15px;
+  padding: 15px;
+}
+
+.metrics {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px dotted #ccc;
+  display: block;
 }

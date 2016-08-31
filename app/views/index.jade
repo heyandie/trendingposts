@@ -1,6 +1,43 @@
 extends layout
 
 block content
-  h1= "Viral Posts"
-  input(placeholder='Enter Facebook page ID. E.g. snackvox', name='fb_id')
-  a(href='/search') Search
+  script(src="https://code.jquery.com/jquery-3.1.0.min.js",integrity="sha256-cCueBR6CsyA4/9szpPfrX3s49M9vUU5BgtiJj06wt/s=",crossorigin="anonymous")
+  script(src="https://cdnjs.cloudflare.com/ajax/libs/async/2.0.1/async.js")
+  div(id='posts')
+    div.search-bar
+      h1= "What's Trending?"
+      input(placeholder='Enter Facebook page ID', name='fb_id', v-model='fb_id', @keyup.enter='search')
+      a.btn(@click='search') Search
+      
+    div.post(v-for="post in posts | orderBy 'likes' -1")
+      
+      a(v-bind:href='post.link') {{ post.message }}
+      img(v-if='post.image_url', v-bind:src='post.image_url', width='100%')
+      span.metrics Likes: {{ post.likes }} | Comments: {{post.comments}} | Shares: {{post.shares}}
+  
+
+  script.
+    new Vue({
+      el: '#posts',
+      data: { 
+        fb_id: '',
+        posts: []
+      },
+      methods: {
+        search: function (event) {
+          var self = this;
+          if(this.fb_id) {
+            $.ajax({
+              url: '/api/search?id='+this.fb_id,
+              method: 'GET',
+              success: function(data) {
+                self.posts = [];
+                $.each(data.data, function (i, item) {
+                  self.posts.push(item);
+                });
+              }
+            });
+          }
+        }
+      }
+    });
