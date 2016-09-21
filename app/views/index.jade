@@ -5,39 +5,119 @@ block content
   script(src="https://cdnjs.cloudflare.com/ajax/libs/async/2.0.1/async.js")
   div(id='posts')
     div.search-bar
+      div.text-center(v-if="searching")
+        img(src="/images/rolling.svg", width="50px")
       h1= "What's Trending?"
-      input(placeholder='Enter Facebook page ID', name='fb_id', v-model='fb_id', @keyup.enter='search')
-      a.btn(@click='search') Search
+      div.block-center.block-parent.input-group
+        div.input-group
+          input.input-block(placeholder='Enter Facebook page ID', name='fb_id', v-model='fb_id', @keyup.enter='search', :disabled="searching ? true : false")
+          a.btn.input-group-button(@click='search', v-bind:class="{ 'disabled': searching }") Search
+    
+    div.block.white-box(v-if='error')
+      div.block-center.block-parent {{error}}
+    
+    
+    div.block-center.block-parent.text-center.page-info(v-if="fb_name")
+      div.page-cover
+        img(v-bind:src='cover_url')
+      div.block-center.page-meta
+        img.page-image(v-if="picture_url", v-bind:src='picture_url' width='100px', height='100px')
+        div
+          a.page-title(v-bind:href='') {{ fb_name }}
+        div.white-text.small-text Page Likes: {{ fan_count }}
       
-    div.post(v-for="post in posts | orderBy 'likes' -1")
-      
-      a(v-bind:href='post.link') {{ post.message }}
-      img(v-if='post.image_url', v-bind:src='post.image_url', width='100%')
-      span.metrics Likes: {{ post.likes }} | Comments: {{post.comments}} | Shares: {{post.shares}}
+    div.block-center.white-box.post(v-for="post in posts | orderBy 'likes' -1")
+        a.post-message(v-if="post.title", href='http://fb.com/{{fb_id}}') {{ post.title }}
+        img(v-if='post.image_url', v-bind:src='post.image_url', width='100%')
+        span.metrics.small-text Likes: {{ post.likes }} | Comments: {{post.comments}} | Shares: {{post.shares}}
   
 
   script.
     new Vue({
       el: '#posts',
-      data: { 
-        fb_id: '',
-        posts: []
+      data:  function () {
+        return {
+          fb_id: '',
+          fb_name: '',
+          fan_count: '',
+          picture_url: '',
+          cover_url: '',
+          searching: false,
+          posts: [],
+          error: ''
+        }
       },
       methods: {
-        search: function (event) {
+        reset: function (event) {
           var self = this;
-          if(this.fb_id) {
-            $.ajax({
-              url: '/api/search?id='+this.fb_id,
-              method: 'GET',
-              success: function(data) {
-                self.posts = [];
-                $.each(data.data, function (i, item) {
-                  self.posts.push(item);
-                });
-              }
-            });
+          self.fb_name = '';
+          self.fan_count = '';
+          self.picture_url = '';
+          self.cover_url = '';
+          self.posts = [];
+          self.error = '';
+        },
+        search: function (event) {
+          
+          var self = this;
+          
+          if(self.searching) {
+            return false;
           }
+          
+          self.reset();
+          
+          var getPageInfo = $.ajax({
+                              url: '/api/page?id='+this.fb_id,
+                              method: 'GET',
+                              beforeSend: function(data) {
+                                self.searching = true;
+                              }
+                            }),
+              
+              getPosts = getPageInfo.then(function(data) {
+                if(data.message && data.message == 'Error') {
+                  self.searching = false;
+                } else {
+                  var info = data.data;
+                  self.fb_name = info.name;
+                  self.fan_count = Number(info.fan_count).toLocaleString();
+                  self.picture_url = info.picture_url;
+                  self.cover_url = info.cover_url;
+                  
+                  return $.ajax({
+                    url: '/api/search?id='+self.fb_id,
+                    method: 'GET',
+                    beforeSend: function(data) {
+                      self.searching = true;
+                    }
+                    
+                  });
+                }
+                
+              }).fail(function(jqXHR, textStatus, errorThrown) {
+                var responseText = JSON.parse(jqXHR.responseText);
+                self.error = responseText.message;
+              });  
+              
+            
+          getPosts.done(function (data) {
+            self.posts = [];
+            $.each(data.data, function (i, item) {
+              if(item.image_url) {
+                self.posts.push(item);
+              }
+              
+            });
+          }).always(function () {
+            self.searching = false;
+          });
+          
+          
+          
+          
+          
+          
         }
       }
     });
