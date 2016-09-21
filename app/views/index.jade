@@ -14,21 +14,24 @@ block content
           a.btn.input-group-button(@click='search', v-bind:class="{ 'disabled': searching }") Search
     
     div.block.white-box(v-if='error')
-      div.block-center.block-parent {{error}}
+      div.block-center.block-parent.text-center {{error}}
     
     
     div.block-center.block-parent.text-center.page-info(v-if="fb_name")
       div.page-cover
         img(v-bind:src='cover_url')
       div.block-center.page-meta
-        img.page-image(v-if="picture_url", v-bind:src='picture_url' width='100px', height='100px')
+        img.page-image(v-if="picture_url", v-bind:src='picture_url' width='70px', height='70px')
         div
           a.page-title(v-bind:href='') {{ fb_name }}
         div.white-text.small-text Page Likes: {{ fan_count }}
-      
+  
+    div.block(v-if='posts.length == 0 && fb_name && !searching')
+      div.block-center.block-parent.text-center No posts found.
+  
     div.block-center.white-box.post(v-for="post in posts | orderBy 'likes' -1")
-        a.post-message(v-if="post.title", href='http://fb.com/{{fb_id}}') {{ post.title }}
         img(v-if='post.image_url', v-bind:src='post.image_url', width='100%')
+        a.post-message(v-if="post.title", href='http://fb.com/{{fb_id}}') {{ post.title }}
         span.metrics.small-text Likes: {{ post.likes }} | Comments: {{post.comments}} | Shares: {{post.shares}}
   
 

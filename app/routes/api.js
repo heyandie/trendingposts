@@ -70,7 +70,7 @@ router.get('/search', function(req, res) {
 
 router.get('/page', function(req, res) {
   var id = req.param('id');
-  var endpoint = 'https://graph.facebook.com/v2.7/'+id+'?fields=name,cover{source},picture{url},fan_count&access_token=224598357874885|f40ac5f404146d8286bd081fd3eb6eec';
+  var endpoint = 'https://graph.facebook.com/v2.7/'+id+'?fields=name,cover{source},picture.type(large){url},fan_count&access_token=224598357874885|f40ac5f404146d8286bd081fd3eb6eec';
 
   request(endpoint, function(error, response, html) {
     if(!error) {

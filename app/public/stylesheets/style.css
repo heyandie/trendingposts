@@ -5,12 +5,11 @@ html, body {
   outline: 0;
   font-size: 100%;
   vertical-align: baseline;
-  background: transparent;
-  background: #26a65b;
 }
 body {
   padding: 0;
   margin: 0;
+  background: #eee;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
@@ -22,10 +21,9 @@ a {
 
 .post-message {
   display: block;
-  margin-bottom: 15px;
+  padding-top: 15px;
   padding-bottom: 15px;
   line-height: 24px;
-  border-bottom: 1px dotted #ccc;
   color: #444;
 }
 
@@ -120,8 +118,8 @@ input:disabled {
 .block-center {
   max-width: 400px;
   margin: 0 auto;
-  margin-top: 15px;
-  margin-bottom: 15px;
+  margin-top: 22px;
+  margin-bottom: 22px;
   padding: 15px;
   display: block;
   border-radius: 3px;
@@ -185,7 +183,6 @@ input:disabled {
 
 .metrics {
   color: #777;
-  margin-top: 15px;
   padding-top: 15px;
   border-top: 1px dotted #ccc;
   display: block;
